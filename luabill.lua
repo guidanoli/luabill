@@ -1,7 +1,7 @@
 local lfs = require 'lfs'
 
+local Node = require 'Node'
 local Bill = require 'Bill'
-local Group = require 'Group'
 
 local luabill = {}
 
@@ -14,7 +14,7 @@ function luabill:tree (path)
         if not bill then
             error(string.format('"%s": %s', billpath, err))
         end
-        return bill
+        return Node:new(bill)
     else
         local t = {}
         for file in lfs.dir(path) do
@@ -22,25 +22,25 @@ function luabill:tree (path)
                 local f = path .. '/' .. file
                 local attr = assert(lfs.attributes(f))
                 if attr.mode == 'directory' then
-                    local child = self:tree(f)
-                    if not child:isempty() then
-                        t[file] = child
+                    local node = self:tree(f)
+                    if node.children == nil or next(node.children) ~= nil then
+                        t[file] = node
                     end
                 end
             end
         end
-        return Group:new(t)
+        return Node:new(nil, t)
     end
 end
 
-function luabill:flatten (tree, array, path)
-    if tree:isleaf() then
+function luabill:flatten (node, array, path)
+    if node.children == nil then
         table.insert(array, {
             path = path,
-            node = tree,
+            data = node.data,
         })
     else
-        for name, child in tree:children() do
+        for name, child in pairs(node.children) do
             self:flatten(child, array, path .. '/' .. name)
         end
     end

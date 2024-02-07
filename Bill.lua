@@ -17,12 +17,4 @@ function Bill:new(t)
     return setmetatable(t, self)
 end
 
-function Bill:isempty()
-    return false
-end
-
-function Bill:isleaf()
-    return true
-end
-
 return Bill
