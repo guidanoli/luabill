@@ -3,13 +3,11 @@ local Group = {}
 Group.__index = Group
 
 function Group:new(t)
-    local group = {}
-    group.children = t
-    return setmetatable(group, self)
+    return setmetatable(t, self)
 end
 
 function Group:isempty()
-    for key, child in pairs(self.children) do
+    for name, child in pairs(self) do
         if not child:isempty() then
             return false
         end
