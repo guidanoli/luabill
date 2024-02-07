@@ -2,9 +2,9 @@ local lfs = require 'lfs'
 
 local Bill = require 'Bill'
 
-local luabill = {}
+local fs = {}
 
-function luabill:loadbills (path, bills)
+function fs:loadbills (path, bills)
     local loadt = loadfile(path .. '/bill.lua')
     if loadt ~= nil then
         local t = loadt()
@@ -29,4 +29,4 @@ function luabill:loadbills (path, bills)
     end
 end
 
-return luabill
+return fs
