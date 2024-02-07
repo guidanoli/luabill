@@ -7,15 +7,14 @@ local luabill = {}
 
 function luabill:tree (path)
     local billpath = path .. '/bill.lua'
-    local fp = io.open(billpath)
-    if fp ~= nil then
-        local chunk = fp:read'*a'
-        local f = load(chunk)
+    local f = loadfile(billpath)
+    if f ~= nil then
         local t = f()
-        if type(t) ~= 'table' then
-            error(billpath .. ' does not return table')
+        local bill, err = Bill:new(t)
+        if not bill then
+            error(string.format('"%s": %s', billpath, err))
         end
-        return Bill:new(t)
+        return bill
     else
         local t = {}
         for file in lfs.dir(path) do
