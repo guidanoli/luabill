@@ -7,7 +7,13 @@ luabill - organize your bills with Lua
 Usage: luabill <command> [args...]
 Commands:
   dump - Dump tree
+    [--flatten] - Flatten tree
 ]]
+
+local function usage ()
+    io.stderr:write(help)
+    os.exit(1)
+end
 
 -- command-line arguments
 
@@ -35,8 +41,26 @@ end
 local cmd = args[i]
 if cmd == 'dump' then
     local tree = luabill:tree(dir)
-    print(serpent.block(tree, { comment = false }))
+    i = i + 1
+    local flatten = false
+    while true do
+        local arg = args[i]
+        if arg == '--flatten' then
+            flatten = true
+            i = i + 1
+        elseif arg == nil then
+            break
+        else
+            usage()
+        end
+    end
+    if flatten then
+        local array = {}
+        luabill:flatten(tree, array, '.')
+        print(serpent.block(array, { comment = false }))
+    else
+        print(serpent.block(tree, { comment = false }))
+    end
 else
-    io.stderr:write(help)
-    os.exit(1)
+    usage()
 end

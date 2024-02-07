@@ -33,4 +33,17 @@ function luabill:tree (path)
     end
 end
 
+function luabill:flatten (tree, array, path)
+    if tree:isleaf() then
+        table.insert(array, {
+            path = path,
+            node = tree,
+        })
+    else
+        for name, child in tree:children() do
+            self:flatten(child, array, path .. '/' .. name)
+        end
+    end
+end
+
 return luabill

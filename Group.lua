@@ -15,4 +15,12 @@ function Group:isempty()
     return true
 end
 
+function Group:isleaf()
+    return false
+end
+
+function Group:children()
+    return pairs(self)
+end
+
 return Group

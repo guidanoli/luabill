@@ -21,4 +21,8 @@ function Bill:isempty()
     return false
 end
 
+function Bill:isleaf()
+    return true
+end
+
 return Bill
