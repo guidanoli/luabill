@@ -9,7 +9,12 @@ function Group:new(t)
 end
 
 function Group:isempty()
-    return next(self.children) == nil
+    for key, child in pairs(self.children) do
+        if not child:isempty() then
+            return false
+        end
+    end
+    return true
 end
 
 return Group
