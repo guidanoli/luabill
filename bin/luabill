@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
 set -euo pipefail
 dir=`pwd`
-cd "${BASH_SOURCE%/*}/.."
+cd "${BASH_SOURCE%/*}/../src"
 lua cli.lua --dir "$dir" "$@"

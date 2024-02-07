@@ -6,8 +6,8 @@ local help = [[
 luabill - organize your bills with Lua
 Usage: luabill <command> [args...]
 Commands:
-  dump - Dump tree
-    [--flatten] - Flatten tree
+  dump - Dump node
+    [--flatten] - Flatten node
 ]]
 
 local function usage ()
@@ -40,7 +40,7 @@ end
 
 local cmd = args[i]
 if cmd == 'dump' then
-    local tree = luabill:tree(dir)
+    local node = luabill:load(dir)
     i = i + 1
     local flatten = false
     while true do
@@ -56,10 +56,10 @@ if cmd == 'dump' then
     end
     if flatten then
         local array = {}
-        luabill:flatten(tree, array, '.')
+        node:flatten(array, '.')
         print(serpent.block(array, { comment = false }))
     else
-        print(serpent.block(tree, { comment = false }))
+        print(serpent.block(node, { comment = false }))
     end
 else
     usage()
