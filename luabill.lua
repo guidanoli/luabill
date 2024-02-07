@@ -1,7 +1,7 @@
-local lfs = require "lfs"
+local lfs = require 'lfs'
 
-local Bill = require "Bill"
-local Group = require "Group"
+local Bill = require 'Bill'
+local Group = require 'Group'
 
 local luabill = {}
 
