@@ -1,6 +1,6 @@
 local lfs = require 'lfs'
 
-local Bill = require 'Bill'
+local Bill = require 'luabill.Bill'
 
 local fs = {}
 

@@ -1,6 +1,6 @@
 local serpent = require 'serpent'
 
-local fs = require 'fs'
+local fs = require 'luabill.fs'
 
 local help = [[
 luabill - organize your bills with Lua
