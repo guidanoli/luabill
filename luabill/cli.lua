@@ -1,18 +1,13 @@
 local serpent = require 'serpent'
 
-local fs = require 'luabill.fs'
+local luabill = require 'luabill'
 
 local help = [[
 luabill - organize your bills with Lua
 Usage: luabill <command> [args...]
 Commands:
-  dump - Dump bills
+  status - Get status of bills
 ]]
-
-local function usage ()
-    io.stderr:write(help)
-    os.exit(1)
-end
 
 -- command-line arguments
 
@@ -38,10 +33,11 @@ end
 -- parse command
 
 local cmd = args[i]
-if cmd == 'dump' then
-    local bills = {}
-    fs:loadbills(dir, bills)
-    print(serpent.block(bills, { comment = false }))
+if cmd == 'status' then
+    local billdirs = {}
+    luabill:loadbilldirs(billdirs, dir)
+    print(serpent.block(billdirs, {comment=false}))
 else
-    usage()
+    io.stderr:write(help)
+    os.exit(1)
 end
