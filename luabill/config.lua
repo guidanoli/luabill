@@ -4,7 +4,7 @@ local Config = {
     frequency = 'monthly',
     billname = lpeg.P'Bill',
     receiptname = lpeg.P'Receipt',
-    infoname = lpeg.P'README',
+    notename = lpeg.P'README',
 }
 
 Config.__index = Config

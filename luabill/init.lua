@@ -4,45 +4,47 @@ local Config = require 'luabill.config'
 
 local LuaBill = {}
 
-function LuaBill:loadbilldirs (billdirs, path)
-    local billdir = self:loadbilldir(path)
+function LuaBill:loadbilldirs (billdirs, relpath, abspath)
+    local billdir = self:loadbilldir(relpath, abspath)
     if billdir ~= nil then
-        billdirs[path] = billdir
+        billdirs[abspath] = billdir
     else
-        for file in lfs.dir(path) do
+        for file in lfs.dir(abspath) do
             if file ~= '.' and file ~= '..' then
-                local childpath = path .. '/' .. file
-                local attr = assert(lfs.attributes(childpath))
+                local relpath = relpath .. '/' .. file
+                local abspath = abspath .. '/' .. file
+                local attr = assert(lfs.attributes(abspath))
                 if attr.mode == 'directory' then
-                    self:loadbilldirs(billdirs, childpath)
+                    self:loadbilldirs(billdirs, relpath, abspath)
                 end
             end
         end
     end
 end
 
-function LuaBill:loadbilldir (path)
-    local f = loadfile(path .. '/bills.lua')
+function LuaBill:loadbilldir (relpath, abspath)
+    local f = loadfile(abspath .. '/bills.lua')
     if f ~= nil then
         local config = Config:new(f())
-        local history = {}
-        self:foreachnumdir(path, function (year)
-            local path = path .. '/' .. year
-            local yearhistory
+        local bills = {}
+        self:foreachnumdir(abspath, function (year)
+            local abspath = abspath .. '/' .. year
+            local billsonyear
             if config.frequency == 'monthly' then
-                yearhistory = {}
-                self:foreachnumdir(path, function (month)
-                    local path = path .. '/' .. month
-                    yearhistory[tonumber(month)] = self:loadhistory(path, config)
+                billsonyear = {}
+                self:foreachnumdir(abspath, function (month)
+                    local abspath = abspath .. '/' .. month
+                    billsonyear[tonumber(month)] = self:loadbill(abspath, config)
                 end)
             else
-                yearhistory = self:loadhistory(path, config)
+                billsonyear = self:loadbill(abspath, config)
             end
-            history[tonumber(year)] = yearhistory
+            bills[tonumber(year)] = billsonyear
         end)
         return {
+            relpath = relpath,
             frequency = config.frequency,
-            history = history,
+            bills = bills,
         }
     end
 end
@@ -74,21 +76,21 @@ function LuaBill:readandrstrip (path)
     return text:gsub('%s+$', '')
 end
 
-function LuaBill:loadhistory (path, config)
+function LuaBill:loadbill (path, config)
     local charged = false
     local paid = false
-    local info
+    local note
     self:foreachfile(path, function (file)
         charged = charged or (config.billname:match(file) ~= nil)
         paid = paid or (config.receiptname:match(file) ~= nil)
-        if config.infoname:match(file) then
-            info = self:readandrstrip(path .. '/' .. file)
+        if config.notename:match(file) then
+            note = self:readandrstrip(path .. '/' .. file)
         end
     end)
     return {
         charged = charged,
         paid = paid,
-        info = info,
+        note = note,
     }
 end
 

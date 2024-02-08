@@ -1,12 +1,14 @@
 local serpent = require 'serpent'
 
 local LuaBill = require 'luabill'
+local Markdown = require 'luabill.markdown'
 
 local help = [[
 luabill - organize your bills with Lua
 Usage: luabill <command> [args...]
 Commands:
   status - Get status of bills
+    [--markdown] - Compile to Markdown
 ]]
 
 -- command-line arguments
@@ -34,9 +36,26 @@ end
 
 local cmd = args[i]
 if cmd == 'status' then
+    i = i + 1
+    local format = 'table'
+    while true do
+        local arg = args[i]
+        if arg == '--markdown' then
+            format = 'md'
+            i = i + 1
+        else
+            break
+        end
+    end
     local billdirs = {}
-    LuaBill:loadbilldirs(billdirs, dir)
-    print(serpent.block(billdirs, {comment=false}))
+    LuaBill:loadbilldirs(billdirs, '.', dir)
+    if format == 'table' then
+        print(serpent.block(billdirs, {comment=false}))
+    elseif format == 'md' then
+        Markdown:print(billdirs)
+    else
+        error(string.format('unknown format %q', format))
+    end
 else
     io.stderr:write(help)
     os.exit(1)
