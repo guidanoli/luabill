@@ -1,4 +1,4 @@
-local Footnotes = require 'luabill.footnotes'
+local Footnotes = require 'luabill.markdown.footnotes'
 
 local Markdown = {
     emoji = {
