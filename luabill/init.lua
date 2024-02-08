@@ -28,25 +28,16 @@ function fs:loadbilldir (path)
         local history = {}
         self:foreachnumdir(path, function (year)
             local path = path .. '/' .. year
-            local yearhistory = {}
-            self:foreachnumdir(path, function (month)
-                local path = path .. '/' .. month
-                local charged = false
-                local paid = false
-                local info
-                self:foreachfile(path, function (file)
-                    charged = charged or (config.billname:match(file) ~= nil)
-                    paid = paid or (config.receiptname:match(file) ~= nil)
-                    if config.infoname:match(file) then
-                        info = self:readandrstrip(path .. '/' .. file)
-                    end
+            local yearhistory
+            if config.frequency == 'monthly' then
+                yearhistory = {}
+                self:foreachnumdir(path, function (month)
+                    local path = path .. '/' .. month
+                    yearhistory[tonumber(month)] = self:loadhistory(path, config)
                 end)
-                yearhistory[tonumber(month)] = {
-                    charged = charged,
-                    paid = paid,
-                    info = info,
-                }
-            end)
+            else
+                yearhistory = self:loadhistory(path, config)
+            end
             history[tonumber(year)] = yearhistory
         end)
         return {
@@ -81,6 +72,24 @@ function fs:readandrstrip (path)
     local text = fp:read'*a'
     fp:close()
     return text:gsub('%s+$', '')
+end
+
+function fs:loadhistory (path, config)
+    local charged = false
+    local paid = false
+    local info
+    self:foreachfile(path, function (file)
+        charged = charged or (config.billname:match(file) ~= nil)
+        paid = paid or (config.receiptname:match(file) ~= nil)
+        if config.infoname:match(file) then
+            info = self:readandrstrip(path .. '/' .. file)
+        end
+    end)
+    return {
+        charged = charged,
+        paid = paid,
+        info = info,
+    }
 end
 
 return fs
