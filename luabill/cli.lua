@@ -10,8 +10,8 @@ Commands:
   status - Show the current status of bills
 Options:
   --format <fmt> - Define output format
-                   + lua : Lua (default)
-                   + md : Markdown
+                   + md : Markdown (default)
+                   + lua : Lua
 ]]
 
 -- command-line arguments
@@ -22,7 +22,7 @@ local i = 1
 -- default options
 
 local dir = '.'
-local format = 'lua'
+local format = 'md'
 
 -- parse options
 
