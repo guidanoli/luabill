@@ -4,6 +4,7 @@ local Markdown = {
     emoji = {
         check = '\u{2705}',
         fire = '\u{1F525}',
+        siren = '\u{1f6a8}',
     },
     header = {'Date', 'Status', 'Note'},
 }
@@ -38,6 +39,7 @@ function Markdown:sortedkeys (t)
 end
 
 function Markdown:print (billdirs)
+    local now = os.date'*t'
     local footnotes = Footnotes:new{}
     local abspaths = self:sortedkeys(billdirs)
     for _, abspath in ipairs(abspaths) do
@@ -47,39 +49,62 @@ function Markdown:print (billdirs)
         print(self:tableline(self.header))
         print(self:tableline(self:tablerepeat(':-:', #self.header)))
         if billdir.frequency == 'monthly' then
-            self:printmonthlybody(footnotes, billdir)
+            self:printmonthlybody(now, footnotes, billdir)
         elseif billdir.frequency == 'yearly' then
-            self:printyearlybody(footnotes, billdir)
+            self:printyearlybody(now, footnotes, billdir)
         end
         print()
     end
     footnotes:print()
 end
 
-function Markdown:printmonthlybody (footnotes, billdir)
+function Markdown:cmpdates (now, year, month)
+    if month then
+        return (now.year - year) * 12 + (now.month - month)
+    else
+        return (now.year - year) * 12
+    end
+end
+
+function Markdown:printmonthlybody (now, footnotes, billdir)
     local minyear = self:minkey(billdir.bills)
-    local maxyear = self:maxkey(billdir.bills)
+    local maxyear = math.max(now.year, self:maxkey(billdir.bills))
+    local foundfirstbill = false
     for year = minyear, maxyear do
         for month = 1, 12 do
+            local cmp = self:cmpdates(now, year, month)
             local date = string.format('%02d/%d', month, year)
             local bill = billdir.bills[year][month]
-            self:printbill(footnotes, date, bill)
+            if bill then
+                foundfirstbill = true
+            end
+            if foundfirstbill then
+                self:printbill(footnotes, date, bill, cmp)
+            end
         end
     end
 end
 
-function Markdown:printyearlybody (footnotes, billdir)
+function Markdown:printyearlybody (now, footnotes, billdir)
     local minyear = self:minkey(billdir.bills)
-    local maxyear = self:maxkey(billdir.bills)
+    local maxyear = math.max(now.year, self:maxkey(billdir.bills))
     for year = minyear, maxyear do
+        local cmp = self:cmpdates(now, year)
         local date = string.format('%d', year)
         local bill = billdir.bills[year]
-        self:printbill(footnotes, date, bill)
+        self:printbill(footnotes, date, bill, cmp)
     end
 end
 
-function Markdown:printbill (footnotes, date, bill)
+function Markdown:printbill (footnotes, date, bill, cmp)
     local status
+    if cmp == 0 then
+        status = self.emoji.siren .. ' Awaiting Bill'
+    elseif cmp > 0 then
+        status = self.emoji.siren .. ' Missing Bill'
+    else
+        status = ''
+    end
     if bill then
         if bill.charged then
             if bill.paid then
@@ -88,10 +113,10 @@ function Markdown:printbill (footnotes, date, bill)
                 status = self.emoji.fire .. ' Not Paid'
             end
         else
-            status = ''
+            if bill.paid then
+                status = self.emoji.siren .. ' Missing Bill'
+            end
         end
-    else
-        status = ''
     end
     local note
     if bill and bill.note then
