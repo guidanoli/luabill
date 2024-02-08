@@ -46,7 +46,7 @@ if cmd == 'status' then
     local billdirs = {}
     LuaBill:loadbilldirs(billdirs, '.', dir)
     if format == 'lua' then
-        print(serpent.block(billdirs, {comment=false}))
+        print('return ' .. serpent.block(billdirs, {comment=false}))
     elseif format == 'md' then
         Markdown:print(billdirs)
     else
