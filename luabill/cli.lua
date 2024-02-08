@@ -8,7 +8,8 @@ luabill - organize your bills with Lua
 Usage: luabill <command> [args...]
 Commands:
   status - Get status of bills
-    [--markdown] - Compile to Markdown
+    [--markdown] - Format as Markdown
+    [--table]    - Format as a Lua table (default)
 ]]
 
 -- command-line arguments
@@ -42,6 +43,9 @@ if cmd == 'status' then
         local arg = args[i]
         if arg == '--markdown' then
             format = 'md'
+            i = i + 1
+        elseif arg == '--table' then
+            format = 'table'
             i = i + 1
         else
             break
