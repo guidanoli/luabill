@@ -5,7 +5,7 @@ local Markdown = {
         check = '\u{2705}',
         fire = '\u{1F525}',
     },
-    header = {'Date', 'Charged', 'Paid', 'Note'},
+    header = {'Date', 'Status', 'Note'},
 }
 
 function Markdown:minkey (t)
@@ -79,8 +79,20 @@ function Markdown:printyearlybody (footnotes, billdir)
 end
 
 function Markdown:printbill (footnotes, date, bill)
-    local charged = bill and bill.charged or false
-    local paid = bill and bill.paid or false
+    local status
+    if bill then
+        if bill.charged then
+            if bill.paid then
+                status = self.emoji.check .. ' Paid'
+            else
+                status = self.emoji.fire .. ' Not Paid'
+            end
+        else
+            status = ''
+        end
+    else
+        status = ''
+    end
     local note
     if bill and bill.note then
         local id = footnotes:add(bill.note)
@@ -90,8 +102,7 @@ function Markdown:printbill (footnotes, date, bill)
     end
     print(self:tableline{
         date,
-        self:chargedemoji(charged),
-        self:paidemoji(charged, paid),
+        status,
         note,
     })
 end
@@ -106,14 +117,6 @@ function Markdown:tablerepeat (v, n)
         table.insert(t, v)
     end
     return t
-end
-
-function Markdown:chargedemoji (charged)
-    return charged and self.emoji.check or ''
-end
-
-function Markdown:paidemoji (charged, paid)
-    return charged and (paid and self.emoji.check or self.emoji.fire) or ''
 end
 
 return Markdown
