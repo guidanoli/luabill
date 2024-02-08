@@ -2,9 +2,9 @@ local lfs = require 'lfs'
 
 local Config = require 'luabill.config'
 
-local fs = {}
+local LuaBill = {}
 
-function fs:loadbilldirs (billdirs, path)
+function LuaBill:loadbilldirs (billdirs, path)
     local billdir = self:loadbilldir(path)
     if billdir ~= nil then
         billdirs[path] = billdir
@@ -21,7 +21,7 @@ function fs:loadbilldirs (billdirs, path)
     end
 end
 
-function fs:loadbilldir (path)
+function LuaBill:loadbilldir (path)
     local f = loadfile(path .. '/bills.lua')
     if f ~= nil then
         local config = Config:new(f())
@@ -47,7 +47,7 @@ function fs:loadbilldir (path)
     end
 end
 
-function fs:foreachnumdir (path, visit)
+function LuaBill:foreachnumdir (path, visit)
     for file in lfs.dir(path) do
         if file:match'^%d+$' then
             local attr = assert(lfs.attributes(path .. '/' .. file))
@@ -58,7 +58,7 @@ function fs:foreachnumdir (path, visit)
     end
 end
 
-function fs:foreachfile (path, visit)
+function LuaBill:foreachfile (path, visit)
     for file in lfs.dir(path) do
         local attr = assert(lfs.attributes(path .. '/' .. file))
         if attr.mode == 'file' then
@@ -67,14 +67,14 @@ function fs:foreachfile (path, visit)
     end
 end
 
-function fs:readandrstrip (path)
+function LuaBill:readandrstrip (path)
     local fp = assert(io.open(path))
     local text = fp:read'*a'
     fp:close()
     return text:gsub('%s+$', '')
 end
 
-function fs:loadhistory (path, config)
+function LuaBill:loadhistory (path, config)
     local charged = false
     local paid = false
     local info
@@ -92,4 +92,4 @@ function fs:loadhistory (path, config)
     }
 end
 
-return fs
+return LuaBill

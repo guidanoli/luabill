@@ -1,6 +1,6 @@
 local serpent = require 'serpent'
 
-local luabill = require 'luabill'
+local LuaBill = require 'luabill'
 
 local help = [[
 luabill - organize your bills with Lua
@@ -35,7 +35,7 @@ end
 local cmd = args[i]
 if cmd == 'status' then
     local billdirs = {}
-    luabill:loadbilldirs(billdirs, dir)
+    LuaBill:loadbilldirs(billdirs, dir)
     print(serpent.block(billdirs, {comment=false}))
 else
     io.stderr:write(help)
